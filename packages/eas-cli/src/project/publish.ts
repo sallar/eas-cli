@@ -35,7 +35,7 @@ type Metadata = {
   };
 };
 export type RawAsset = {
-  type: string;
+  type?: string;
   contentType: string;
   path: string;
 };
@@ -118,7 +118,11 @@ export async function convertAssetToUpdateInfoGroupFormatAsync(
 ): Promise<PartialManifestAsset> {
   const fileSHA256 = getBase64URLEncoding(await calculateFileHashAsync(asset.path, 'sha256'));
   const contentType = asset.contentType;
-  const type = asset.type;
+
+  let fileExtension;
+  if (asset.type) {
+    fileExtension = asset.type.startsWith('.') ? asset.type : '.' + asset.type;
+  }
   const storageKey = getStorageKey(contentType, fileSHA256);
   const bundleKey = (await calculateFileHashAsync(asset.path, 'md5')).toString('hex');
 
@@ -128,7 +132,7 @@ export async function convertAssetToUpdateInfoGroupFormatAsync(
     storageBucket: STORAGE_BUCKET,
     storageKey,
     bundleKey,
-    type,
+    fileExtension,
   };
 }
 

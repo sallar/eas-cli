@@ -436,6 +436,8 @@ export type App = Project & {
   buildOrBuildJobs: Array<BuildOrBuildJob>;
   /** EAS Submissions associated with this app */
   submissions: Array<Submission>;
+  /** Deployments associated with this app */
+  deployments: Array<Deployment>;
   /** iOS app credentials for the project */
   iosAppCredentials: Array<IosAppCredentials>;
   /** Android app credentials for the project */
@@ -514,6 +516,14 @@ export type AppSubmissionsArgs = {
   filter: SubmissionFilter;
   offset: Scalars['Int'];
   limit: Scalars['Int'];
+};
+
+
+/** Represents an Exponent App (or Experience in legacy terms) */
+export type AppDeploymentsArgs = {
+  limit: Scalars['Int'];
+  buildListMaxSize: Scalars['Int'];
+  mostRecentlyUpdatedAt?: Maybe<Scalars['DateTime']>;
 };
 
 
@@ -985,6 +995,39 @@ export type SubmissionFilter = {
   status?: Maybe<SubmissionStatus>;
 };
 
+/** Represents a Deployment - a set of Builds with the same Runtime Version and Channel */
+export type Deployment = {
+  __typename?: 'Deployment';
+  id?: Maybe<Scalars['String']>;
+  runtimeVersion?: Maybe<Scalars['String']>;
+  channel?: Maybe<Scalars['String']>;
+  recentBuilds?: Maybe<Array<Maybe<Build>>>;
+  branchToReceive?: Maybe<UpdateBranch>;
+};
+
+export type UpdateBranch = {
+  __typename?: 'UpdateBranch';
+  id: Scalars['ID'];
+  appId: Scalars['ID'];
+  name: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  updates: Array<Update>;
+  mostRecentUpdateForEachPlatform: Array<Update>;
+};
+
+
+export type UpdateBranchUpdatesArgs = {
+  offset: Scalars['Int'];
+  limit: Scalars['Int'];
+  filter?: Maybe<UpdatesFilter>;
+};
+
+export type UpdatesFilter = {
+  platform?: Maybe<AppPlatform>;
+  runtimeVersions?: Maybe<Array<Scalars['String']>>;
+};
+
 export type IosAppCredentialsFilter = {
   appleAppIdentifierId?: Maybe<Scalars['String']>;
 };
@@ -1238,29 +1281,6 @@ export type UpdateChannel = {
 export type UpdateChannelUpdateBranchesArgs = {
   offset: Scalars['Int'];
   limit: Scalars['Int'];
-};
-
-export type UpdateBranch = {
-  __typename?: 'UpdateBranch';
-  id: Scalars['ID'];
-  appId: Scalars['ID'];
-  name: Scalars['String'];
-  createdAt: Scalars['DateTime'];
-  updatedAt: Scalars['DateTime'];
-  updates: Array<Update>;
-  mostRecentUpdateForEachPlatform: Array<Update>;
-};
-
-
-export type UpdateBranchUpdatesArgs = {
-  offset: Scalars['Int'];
-  limit: Scalars['Int'];
-  filter?: Maybe<UpdatesFilter>;
-};
-
-export type UpdatesFilter = {
-  platform?: Maybe<AppPlatform>;
-  runtimeVersions?: Maybe<Array<Scalars['String']>>;
 };
 
 export type EnvironmentSecret = {
@@ -3017,7 +3037,7 @@ export type PartialManifestAsset = {
   fileSHA256: Scalars['String'];
   bundleKey: Scalars['String'];
   contentType: Scalars['String'];
-  type: Scalars['String'];
+  fileExtension?: Maybe<Scalars['String']>;
   storageBucket: Scalars['String'];
   storageKey: Scalars['String'];
 };
@@ -3423,16 +3443,6 @@ export type WebhookInput = {
 export type DeleteWebhookResult = {
   __typename?: 'DeleteWebhookResult';
   id: Scalars['ID'];
-};
-
-/** Represents a Deployment - a set of Builds with the same Runtime Version and Channel */
-export type Deployment = {
-  __typename?: 'Deployment';
-  id?: Maybe<Scalars['String']>;
-  runtimeVersion?: Maybe<Scalars['String']>;
-  channel?: Maybe<Scalars['String']>;
-  recentBuilds?: Maybe<Array<Maybe<Build>>>;
-  branchToReceive?: Maybe<UpdateBranch>;
 };
 
 export enum CacheControlScope {
